@@ -30,8 +30,8 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
     const REVERSE_POWER = 0.2;
     const TURN_RATE = 0.015;
 
-    let tankCenterPositionX = initialPositionX + TANK_AXIS[0];
-    let tankCenterPositionY = initialPositionY + TANK_AXIS[1];
+    let tankCenterPositionX = initialPositionX;
+    let tankCenterPositionY = initialPositionY;
     let health = initialHealth;
     const width = 120;
 
@@ -52,7 +52,7 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
     }
 
     function keyPressed(evt) {
-        console.log("key pressed: " + evt.keyCode);
+        //console.log("key pressed: " + evt.keyCode);
 
         if (evt.keyCode == KEY_A) {
             keyHeld_TurnLeft = true;
@@ -70,7 +70,7 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
     }
 
     function keyReleased(evt) {
-        console.log("key released: " + evt.keyCode);
+        //console.log("key released: " + evt.keyCode);
 
         if (evt.keyCode == KEY_A) {
             keyHeld_TurnLeft = false;
@@ -137,11 +137,11 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
 
     return {
         getPositionX: function() {
-            return tankCenterPositionX - TANK_AXIS[0];
+            return tankCenterPositionX;
         },
 
         getPositionY: function() {
-            return tankCenterPositionY - TANK_AXIS[1];;
+            return tankCenterPositionY;
         },
 
         getWidth: function() {
@@ -163,37 +163,53 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
         },
 
         onColide: function(otherObject) {
-            console.log('player tank colided with another object');
+            //console.log('player tank colided with another object');
             // stop tank from moving and unstack
             tankSpeed = 0;
             let newCenterTankPositionX = tankCenterPositionX;
             let newCenterTankPositionY = tankCenterPositionY;
 
-            if (this.getPositionX() < otherObject.getPositionX() + otherObject.getWidth() &&
-                this.getPositionX() + width > otherObject.getPositionX()) {
-                // Unstack on the Y axis
-                const distanceFromCenterToBottomOfOtherObject =
-                    Math.abs(tankCenterPositionY - (otherObject.getPositionY() + otherObject.getWidth()));
-                const distanceFromCenterToTopOfOtherObject =
-                    Math.abs(tankCenterPositionY - otherObject.getPositionY());
-                if (distanceFromCenterToBottomOfOtherObject < distanceFromCenterToTopOfOtherObject) {
-                    //The tank is south of the other object
-                    newCenterTankPositionY = otherObject.getPositionY() + otherObject.getWidth() + width / 2;
-                } else {
-                    //The tank is north of the other object
-                    newCenterTankPositionY = otherObject.getPositionY() - width - width / 2;
-                }
-            }
+            let tankLeftBorder = this.getPositionX() - this.getWidth() / 2;
+            let tankRightBorder = this.getPositionX() + this.getWidth() / 2;
+            let tankTopBorder = this.getPositionY() - this.getWidth() / 2;
+            let tankBottomBorder = this.getPositionY() + this.getWidth() / 2;
 
-            if (this.getPositionY() < otherObject.getPositionY() + otherObject.getWidth() &&
-                this.getPositionY() + width > otherObject.getPositionY()) {
-                // Unstack on the X axis
-                // TODO:
+            let otherObjectLeftBorder = otherObject.getPositionX() - otherObject.getWidth() / 2;
+            let otherObjectRightBorder = otherObject.getPositionX() + otherObject.getWidth() / 2;
+            let otherObjectTopBorder = otherObject.getPositionY() - otherObject.getWidth() / 2;
+            let otherObjectBottomBorder = otherObject.getPositionY() + otherObject.getWidth() / 2;
+
+            let moveDownToUnstack = otherObjectBottomBorder - tankTopBorder;
+            let moveUpToUnstack = tankBottomBorder - otherObjectTopBorder;
+            let moveRightToUnstack = otherObjectRightBorder - tankLeftBorder;
+            let moveLeftToUnstack = tankRightBorder - otherObjectLeftBorder;
+
+            //unstack to the direction with minimal movement
+            if (moveDownToUnstack < moveUpToUnstack &&
+                moveDownToUnstack < moveRightToUnstack &&
+                moveDownToUnstack < moveLeftToUnstack) {
+                //console.log('unstack down');
+                newCenterTankPositionY = this.getPositionY() + moveDownToUnstack;
+            } else if (moveUpToUnstack < moveDownToUnstack &&
+                moveUpToUnstack < moveRightToUnstack &&
+                moveUpToUnstack < moveLeftToUnstack) {
+                //console.log('unstack up');
+                newCenterTankPositionY = this.getPositionY() - moveUpToUnstack;
+            } else if (moveRightToUnstack < moveDownToUnstack &&
+                moveRightToUnstack < moveUpToUnstack &&
+                moveRightToUnstack < moveLeftToUnstack) {
+                //console.log('unstack right');
+                newCenterTankPositionX = this.getPositionX() + moveRightToUnstack;
+            } else if (moveLeftToUnstack < moveDownToUnstack &&
+                moveLeftToUnstack < moveUpToUnstack &&
+                moveLeftToUnstack < moveRightToUnstack) {
+                //console.log('unstack left');
+                newCenterTankPositionX = this.getPositionX() - moveLeftToUnstack;
             }
 
             tankCenterPositionX = newCenterTankPositionX;
             tankCenterPositionY = newCenterTankPositionY;
-            console.log(`collision detected at ${this.getPositionX()}, ${this.getPositionY()}`);
+            //console.log(`collision detected at ${this.getPositionX()}, ${this.getPositionY()}; width: ${this.getWidth()}`);
         },
 
         takeDamage: function(damagePoints) {

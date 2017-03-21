@@ -10,11 +10,32 @@ function getGameEngine(gameCanvas) {
                 let object1 = fieldObjects[i];
                 let object2 = fieldObjects[j];
 
-                if (object1.getPositionX() < object2.getPositionX() + object2.getWidth() &&
-                    object1.getPositionX() + object1.getWidth() > object2.getPositionX() &&
-                    object1.getPositionY() < object2.getPositionY() + object2.getWidth() &&
-                    object1.getPositionY() + object1.getWidth() > object2.getPositionY()) {
+                let object1LeftBorder = object1.getPositionX() - object1.getWidth() / 2;
+                let object1RightBorder = object1.getPositionX() + object1.getWidth() / 2;
+                let object1TopBorder = object1.getPositionY() - object1.getWidth() / 2;
+                let object1BottomBorder = object1.getPositionY() + object1.getWidth() / 2;
+
+                let object2LeftBorder = object2.getPositionX() - object2.getWidth() / 2;
+                let object2RightBorder = object2.getPositionX() + object2.getWidth() / 2;
+                let object2TopBorder = object2.getPositionY() - object2.getWidth() / 2;
+                let object2BottomBorder = object2.getPositionY() + object2.getWidth() / 2;
+
+                if (object1LeftBorder < object2RightBorder &&
+                    object1RightBorder > object2LeftBorder &&
+                    object1TopBorder < object2BottomBorder &&
+                    object1BottomBorder > object2TopBorder) {
                     // Collision between object1 and object2 detected
+
+                    // console.log('collision:');
+                    // console.log('object1LeftBorder =' + object1LeftBorder);
+                    // console.log('object1RightBorder =' + object1RightBorder);
+                    // console.log('object1TopBorder =' + object1TopBorder);
+                    // console.log('object1BottomBorder =' + object1BottomBorder);
+                    // console.log('object2LeftBorder =' + object2LeftBorder);
+                    // console.log('object2RightBorder =' + object2RightBorder);
+                    // console.log('object2TopBorder =' + object2TopBorder);
+                    // console.log('object2BottomBorder =' + object2BottomBorder);
+
                     object1.onColide(object2);
                     object2.onColide(object1);
                 }
@@ -28,10 +49,16 @@ function getGameEngine(gameCanvas) {
 
             const fieldBordersWidth = Math.max(fieldCanvas.width, fieldCanvas.height);
 
-            const topFieldBorder = getInvisibleWall(0, -fieldBordersWidth, fieldBordersWidth);
-            const rightFieldBorder = getInvisibleWall(fieldCanvas.width, 0, fieldBordersWidth);
-            const bottomFieldBorder = getInvisibleWall(0, fieldCanvas.height, fieldBordersWidth);
-            const leftFieldBorder = getInvisibleWall(-fieldBordersWidth, 0, fieldBordersWidth);
+            const topFieldBorder = getInvisibleWall(
+                fieldCanvas.width / 2, -fieldBordersWidth / 2, fieldBordersWidth);
+
+            const rightFieldBorder = getInvisibleWall(
+                fieldCanvas.width + fieldBordersWidth / 2, fieldCanvas.height / 2, fieldBordersWidth);
+
+            const bottomFieldBorder = getInvisibleWall(
+                fieldCanvas.width / 2, fieldCanvas.height + fieldBordersWidth / 2, fieldBordersWidth);
+
+            const leftFieldBorder = getInvisibleWall(-fieldBordersWidth / 2, fieldCanvas.height / 2, fieldBordersWidth);
 
             const playerTank = getPlayerTank(390, 250, 100);
 
