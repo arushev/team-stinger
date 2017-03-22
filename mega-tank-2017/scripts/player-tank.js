@@ -1,4 +1,4 @@
-function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) {
+function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launchShellFunction) {
     // keyCodes
     const KEY_W = 87;
     const KEY_S = 83;
@@ -12,32 +12,34 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
     var keyHeld_TurnRight = false;
 
     let tankSpeed = 0;
-    let tankAng = -Math.PI / 2;
+    let tankAng = 0;
 
-    var cannonAng = 0;
 
-    const TANK_WIDTH = 75;
-    const TANK_HEIGHT = 120;
-    const TANK_AXIS = [TANK_HEIGHT / 2, TANK_WIDTH / 2];
+    const CANNON_THICK = 15;
+    const CANNON_LENGTH = 100;
+    let cannonAng = 0;
 
-    const CANNON_WIDTH = 15;
-    const CANNON_HEIGHT = 80;
-    const CANNON_AXIS = [CANNON_WIDTH / 2, CANNON_HEIGHT * 0.9];
+    let framesBeforeTankCanShootAgain = 0;
+    const RELOAD_TIME_IN_FRAMES = 30;
+
+    const TANK_THICK = 75;
+    const TANK_LENGHT = 120;
 
     const GROUNDSPEED_DECAY = 0.90;
-    const MAX_SPEED = 5;
-    const DRIVE_POWER = 0.2;
-    const REVERSE_POWER = 0.2;
-    const TURN_RATE = 0.015;
+    const MAX_SPEED = 10;
+    const DRIVE_POWER = 0.30;
+    const REVERSE_POWER = 0.15;
+    const TURN_RATE = 0.030;
 
     let tankCenterPositionX = initialPositionX;
     let tankCenterPositionY = initialPositionY;
     let health = initialHealth;
     const width = 120;
+    const launchShell = launchShellFunction;
 
     // INPUT FUNCTIONS
     function aim() {
-        let toAng = Math.atan2(mouseY - tankCenterPositionY, mouseX - tankCenterPositionX) + (Math.PI / 2);
+        let toAng = Math.atan2(mouseY - tankCenterPositionY, mouseX - tankCenterPositionX);
         if (toAng !== cannonAng) cannonAng = toAng;
     }
 
@@ -49,6 +51,21 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
         mouseY = evt.clientY - rect.top - root.scrollTop;
 
         aim();
+    }
+
+    function handleMouseClick(evt) {
+        if (framesBeforeTankCanShootAgain > 0) {
+            // reloading
+            return;
+        }
+        launchShell(tankCenterPositionX + Math.cos(cannonAng) * CANNON_LENGTH,
+            tankCenterPositionY + Math.sin(cannonAng) * CANNON_LENGTH,
+            cannonAng);
+        framesBeforeTankCanShootAgain = RELOAD_TIME_IN_FRAMES;
+        // if (evt.button == 0 && percentLoaded == RELOADED) {
+        //     releaseShell();
+        //     percentLoaded = 0;
+        // }
     }
 
     function keyPressed(evt) {
@@ -88,23 +105,22 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
     }
 
     canvas.addEventListener('mousemove', handleMouse);
+    canvas.addEventListener('click', handleMouseClick);
     document.addEventListener('keydown', keyPressed);
     document.addEventListener('keyup', keyReleased);
 
-    function drawTankBody(context, X, Y, ang) {
-        context.save();
-        context.translate(X, Y);
-        context.rotate(ang);
-        drawRect(context, -TANK_AXIS[0], -TANK_AXIS[1], TANK_HEIGHT, TANK_WIDTH, 'DarkOliveGreen');
-        context.restore();
+    function drawTankBody(context) {
+        drawRotatingImg(context, tankPic, tankCenterPositionX, tankCenterPositionY, tankAng, tankPic.width / 2, tankPic.height / 2);
+
+        // *** option with simple rectangle instead of tankPic ***
+        // drawRotatingObj(tankX, tankY, tankAng, TANK_LENGHT/2, TANK_THICK/2, TANK_LENGHT, TANK_THICK, 'DarkOliveGreen');
     }
 
-    function drawCannon(context, X, Y, ang) {
-        context.save();
-        context.translate(X, Y);
-        context.rotate(ang);
-        drawRect(context, -CANNON_AXIS[0], -CANNON_AXIS[1], CANNON_WIDTH, CANNON_HEIGHT, 'OliveDrab');
-        context.restore();
+    function drawCannon(context) {
+        drawRotatingImg(context, cannonPic, tankCenterPositionX, tankCenterPositionY, cannonAng, cannonPic.width * 0.25, cannonPic.height / 2);
+
+        // *** option with simple rectangle instead of cannonPic ***
+        // drawRotatingObj(tankX, tankY, cannonAng, CANNON_LENGTH * 0.1, CANNON_THICK/2, CANNON_LENGTH, CANNON_THICK, 'OliveDrab');
     }
 
     function moveTank() {
@@ -130,11 +146,6 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
         tankCenterPositionY += Math.sin(tankAng) * tankSpeed;
     }
 
-    function drawRect(context, X, Y, width, height, color) {
-        context.fillStyle = color;
-        context.fillRect(X, Y, width, height);
-    }
-
     return {
         getPositionX: function() {
             return tankCenterPositionX;
@@ -153,13 +164,14 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
         },
 
         advanceOneFrame: function() {
-            moveTank()
+            moveTank();
+            framesBeforeTankCanShootAgain--;
         },
 
         draw: function(fieldCanvas) {
             context = fieldCanvas.getContext('2d');
-            drawTankBody(context, tankCenterPositionX, tankCenterPositionY, tankAng);
-            drawCannon(context, tankCenterPositionX, tankCenterPositionY, cannonAng);
+            drawTankBody(context);
+            drawCannon(context);
         },
 
         onColide: function(otherObject) {
@@ -217,7 +229,8 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth = 100) 
         },
 
         canRemove: function() {
-            health <= 0;
+            //never remove the tank. The engine will end the game when the tank has helth <= 0
+            return false;
         }
     }
 }

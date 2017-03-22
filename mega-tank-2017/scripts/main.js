@@ -1,17 +1,29 @@
-const gameFramesPerSecond = 60;
+const gameFramesPerSecond = 30;
 let gameEngine;
+let gameInteval;
 
 window.onload = function() {
     canvas = document.getElementById('gameCanvas');
 
+    loadGraphics();
+
     gameEngine = getGameEngine(canvas);
+}
+
+function startNewGame() {
+    clearInterval(gameInteval);
 
     gameEngine.setupNewGame();
 
-    setInterval(gameLoop, 1000 / gameFramesPerSecond);
+    gameInteval = setInterval(gameLoop, 1000 / gameFramesPerSecond);
 }
 
 function gameLoop() {
     gameEngine.advanceOneFrame();
     gameEngine.drawFieldAndObjects();
+
+    if (gameEngine.isPlayerDead()) {
+        console.log('player is dead');
+        clearInterval(gameInteval);
+    }
 }

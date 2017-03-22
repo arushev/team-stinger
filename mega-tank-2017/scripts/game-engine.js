@@ -2,6 +2,19 @@ function getGameEngine(gameCanvas) {
     const fieldCanvas = gameCanvas;
 
     let fieldObjects = [];
+    let playerTank;
+
+    // Use this function to launch shells. Provide it to a shooting object (e. g. turret) and use it from there
+    function launchShell(positionX, positionY, shellDirection, shellSpeed = 20, shellDamage = 10) {
+        let shell = getShell(positionX, positionY, 16, shellDirection, shellSpeed, shellDamage);
+        fieldObjects.push(shell);
+        // console.log('launched shell');
+        // console.log('positionX = ', positionX);
+        // console.log('positionY = ', shellDirection);
+        // console.log('shellSpeed = ', shellSpeed);
+        // console.log('shellDamage = ', shellDamage);
+        // console.log('fieldObjects count = ' + fieldObjects.length);
+    }
 
     function processCollisions() {
         let objectCount = fieldObjects.length;
@@ -60,7 +73,7 @@ function getGameEngine(gameCanvas) {
 
             const leftFieldBorder = getInvisibleWall(-fieldBordersWidth / 2, fieldCanvas.height / 2, fieldBordersWidth);
 
-            const playerTank = getPlayerTank(390, 250, 100);
+            playerTank = getPlayerTank(390, 250, 100, launchShell);
 
             fieldObjects.push(topFieldBorder, rightFieldBorder, bottomFieldBorder, leftFieldBorder, playerTank);
         },
@@ -68,15 +81,18 @@ function getGameEngine(gameCanvas) {
         advanceOneFrame: function() {
             fieldObjects.forEach(obj => obj.advanceOneFrame());
             processCollisions();
+            fieldObjects = fieldObjects.filter(obj => !obj.canRemove())
         },
 
         drawFieldAndObjects: function() {
-            context = fieldCanvas.getContext('2d');
-            context.fillStyle = 'black';
-            context = canvas.getContext('2d');
-            context.fillRect(0, 0, fieldCanvas.width, fieldCanvas.height);
+            let context = fieldCanvas.getContext('2d');
+            drawRect(context, 0, 0, fieldCanvas.width, fieldCanvas.height, 'DarkGray');
 
             fieldObjects.forEach(obj => obj.draw(fieldCanvas));
+        },
+
+        isPlayerDead: function() {
+            return playerTank.getHealth() <= 0;
         }
     }
 }
