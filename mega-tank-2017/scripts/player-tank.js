@@ -26,7 +26,7 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     const TANK_LENGHT = 120;
 
     const GROUNDSPEED_DECAY = 0.90;
-    const MAX_SPEED = 10;
+    const MAX_SPEED = 20;
     const DRIVE_POWER = 0.30;
     const REVERSE_POWER = 0.15;
     const TURN_RATE = 0.030;
@@ -49,8 +49,6 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
 
         mouseX = evt.clientX - rect.left - root.scrollLeft;
         mouseY = evt.clientY - rect.top - root.scrollTop;
-
-        aim();
     }
 
     function handleMouseClick(evt) {
@@ -165,6 +163,7 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
 
         advanceOneFrame: function() {
             moveTank();
+            aim();
             framesBeforeTankCanShootAgain--;
         },
 
