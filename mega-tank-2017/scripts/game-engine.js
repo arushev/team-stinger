@@ -5,8 +5,8 @@ function getGameEngine(gameCanvas) {
     let playerTank;
 
     // Use this function to launch shells. Provide it to a shooting object (e. g. turret) and use it from there
-    function launchShell(positionX, positionY, shellDirection, shellSpeed = 20, shellDamage = 10) {
-        let shell = getShell(positionX, positionY, 16, shellDirection, shellSpeed, shellDamage);
+    function launchShell(positionX, positionY, shellDirection, shellWidth = 16, shellSpeed = 20, shellDamage = 30) {
+        let shell = getShell(positionX, positionY, shellWidth, shellDirection, shellSpeed, shellDamage);
         fieldObjects.push(shell);
         // console.log('launched shell');
         // console.log('positionX = ', positionX);

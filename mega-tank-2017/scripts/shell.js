@@ -49,7 +49,7 @@ function getShell(initialPositionX, initialPositionY, shellWidth, shellDirection
                 shellHit = true;
                 otherObject.takeDamage(damage);
             }
-            console.log('shell colides');
+            //console.log('shell colides');
         },
 
         takeDamage: function(damagePoints) {

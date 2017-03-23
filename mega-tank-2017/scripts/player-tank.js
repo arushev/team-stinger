@@ -11,16 +11,21 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     var keyHeld_TurnLeft = false;
     var keyHeld_TurnRight = false;
 
+    // mouse flags
+    let isRightMouseButtonDown = false;
+
     let tankSpeed = 0;
     let tankAng = 0;
 
-
     const CANNON_THICK = 15;
     const CANNON_LENGTH = 100;
-    let cannonAng = 0;
+    let cannonAng = 0;;
 
-    let framesBeforeTankCanShootAgain = 0;
-    const RELOAD_TIME_IN_FRAMES = 30;
+    let framesBeforeMachineGunCanShootAgain = 0;
+    const MACHINE_GUN_RELOAD_TIME_IN_FRAMES = 3;
+
+    let framesBeforeCannonCanShootAgain = 0;
+    const CANNON_RELOAD_TIME_IN_FRAMES = 30;
 
     const TANK_THICK = 75;
     const TANK_LENGHT = 120;
@@ -36,6 +41,10 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     let health = initialHealth;
     const width = 120;
     const launchShell = launchShellFunction;
+
+    // The distance from the center of the tank where the shell appears when fired.
+    // 0.7071 is sin(45 degrees)
+    const shootDistance = (width * 0.7071 + 20);
 
     let mouseX = tankCenterPositionX;
     let mouseY = tankCenterPositionY;
@@ -54,19 +63,54 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
         mouseY = evt.clientY - rect.top - root.scrollTop;
     }
 
-    function handleMouseClick(evt) {
-        if (framesBeforeTankCanShootAgain > 0) {
+
+    function fireCannon() {
+        if (framesBeforeCannonCanShootAgain > 0) {
             // reloading
             return;
         }
-        launchShell(tankCenterPositionX + Math.cos(cannonAng) * CANNON_LENGTH,
-            tankCenterPositionY + Math.sin(cannonAng) * CANNON_LENGTH,
+        launchShell(tankCenterPositionX + Math.cos(cannonAng) * shootDistance,
+            tankCenterPositionY + Math.sin(cannonAng) * shootDistance,
             cannonAng);
-        framesBeforeTankCanShootAgain = RELOAD_TIME_IN_FRAMES;
-        // if (evt.button == 0 && percentLoaded == RELOADED) {
-        //     releaseShell();
-        //     percentLoaded = 0;
-        // }
+        framesBeforeCannonCanShootAgain = CANNON_RELOAD_TIME_IN_FRAMES;
+    }
+
+    function fireMachineGun() {
+        if (framesBeforeMachineGunCanShootAgain > 0) {
+            // reloading
+            return;
+        }
+        launchShell(tankCenterPositionX + Math.cos(tankAng) * shootDistance,
+            tankCenterPositionY + Math.sin(tankAng) * shootDistance,
+            tankAng,
+            7,
+            40,
+            1);
+
+        framesBeforeMachineGunCanShootAgain = MACHINE_GUN_RELOAD_TIME_IN_FRAMES;
+
+    }
+
+    function handleMouseClick(evt) {
+        fireCannon();
+    }
+
+    function handleRightMouseClick(evt) {
+        evt.preventDefault();
+    }
+
+    function handleMouseDown(evt) {
+        if (evt.button == 2) {
+            isRightMouseButtonDown = true;
+            evt.preventDefault();
+        }
+    }
+
+    function handleMouseUp(evt) {
+        if (evt.button == 2) {
+            isRightMouseButtonDown = false;
+            evt.preventDefault();
+        }
     }
 
     function keyPressed(evt) {
@@ -107,7 +151,9 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
 
     canvas.addEventListener('mousemove', handleMouse);
     canvas.addEventListener('click', handleMouseClick);
-    canvas.addEventListener('dblclick', handleMouseClick);
+    canvas.addEventListener('contextmenu', handleRightMouseClick);
+    canvas.addEventListener('mousedown', handleMouseDown)
+    canvas.addEventListener('mouseup', handleMouseUp)
     document.addEventListener('keydown', keyPressed);
     document.addEventListener('keyup', keyReleased);
 
@@ -171,7 +217,11 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
         advanceOneFrame: function() {
             moveTank();
             aim();
-            framesBeforeTankCanShootAgain--;
+            if (isRightMouseButtonDown) {
+                fireMachineGun();
+            }
+            framesBeforeCannonCanShootAgain--;
+            framesBeforeMachineGunCanShootAgain--;
         },
 
         draw: function(fieldCanvas) {
