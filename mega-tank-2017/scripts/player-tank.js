@@ -49,6 +49,10 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     let mouseX = tankCenterPositionX;
     let mouseY = tankCenterPositionY;
 
+    // SOUNDS
+    const move = new Audio('./sounds/move.wav'); 
+    const shot = new Audio('./sounds/shot.wav');
+
     // INPUT FUNCTIONS
     function aim() {
         let toAng = Math.atan2(mouseY - tankCenterPositionY, mouseX - tankCenterPositionX);
@@ -73,6 +77,7 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
             tankCenterPositionY + Math.sin(cannonAng) * shootDistance,
             cannonAng);
         framesBeforeCannonCanShootAgain = CANNON_RELOAD_TIME_IN_FRAMES;
+        shot.play();
     }
 
     function fireMachineGun() {
@@ -121,12 +126,14 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
         }
         if (evt.keyCode == KEY_W) {
             keyHeld_Gas = true;
+            move.play();
         }
         if (evt.keyCode == KEY_D) {
             keyHeld_TurnRight = true;
         }
         if (evt.keyCode == KEY_S) {
             keyHeld_Reverse = true;
+            move.play();
         }
         evt.preventDefault();
     }
@@ -139,12 +146,16 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
         }
         if (evt.keyCode == KEY_W) {
             keyHeld_Gas = false;
+            move.pause();
+            move.currentTime = 0;
         }
         if (evt.keyCode == KEY_D) {
             keyHeld_TurnRight = false;
         }
         if (evt.keyCode == KEY_S) {
             keyHeld_Reverse = false;
+            move.pause();
+            move.currentTime = 0;
         }
         evt.preventDefault();
     }
