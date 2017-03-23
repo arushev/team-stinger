@@ -37,6 +37,9 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     const width = 120;
     const launchShell = launchShellFunction;
 
+    let mouseX = tankCenterPositionX;
+    let mouseY = tankCenterPositionY;
+
     // INPUT FUNCTIONS
     function aim() {
         let toAng = Math.atan2(mouseY - tankCenterPositionY, mouseX - tankCenterPositionX);
@@ -104,8 +107,12 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
 
     canvas.addEventListener('mousemove', handleMouse);
     canvas.addEventListener('click', handleMouseClick);
+    canvas.addEventListener('dblclick', handleMouseClick);
     document.addEventListener('keydown', keyPressed);
     document.addEventListener('keyup', keyReleased);
+
+    // prevent selecting the canvas when user is anxious and shoots too much
+    canvas.onselectstart = function() { return false; }
 
     function drawTankBody(context) {
         drawRotatingImg(context, tankPic, tankCenterPositionX, tankCenterPositionY, tankAng, tankPic.width / 2, tankPic.height / 2);
