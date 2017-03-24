@@ -126,14 +126,12 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
         }
         if (evt.keyCode == KEY_W) {
             keyHeld_Gas = true;
-            move.play();
         }
         if (evt.keyCode == KEY_D) {
             keyHeld_TurnRight = true;
         }
         if (evt.keyCode == KEY_S) {
             keyHeld_Reverse = true;
-            move.play();
         }
         evt.preventDefault();
     }
@@ -146,18 +144,25 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
         }
         if (evt.keyCode == KEY_W) {
             keyHeld_Gas = false;
-            move.pause();
-            move.currentTime = 0;
         }
         if (evt.keyCode == KEY_D) {
             keyHeld_TurnRight = false;
         }
         if (evt.keyCode == KEY_S) {
             keyHeld_Reverse = false;
+        }
+        evt.preventDefault();
+    }
+
+    // play move.wav when key down and stop when up. Up to 36secs. Will try to loop it
+    function moveSound() { 
+        if(keyHeld_Gas || keyHeld_Reverse || keyHeld_TurnLeft || keyHeld_TurnRight) {
+            move.play();
+        }
+        else {
             move.pause();
             move.currentTime = 0;
         }
-        evt.preventDefault();
     }
 
     canvas.addEventListener('mousemove', handleMouse);
@@ -228,6 +233,7 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
         advanceOneFrame: function() {
             moveTank();
             aim();
+            moveSound();
             if (isRightMouseButtonDown) {
                 fireMachineGun();
             }
