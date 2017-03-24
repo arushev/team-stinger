@@ -50,8 +50,9 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     let mouseY = tankCenterPositionY;
 
     // SOUNDS
-    const move = new Audio('./sounds/move.wav'); 
-    const shot = new Audio('./sounds/shot.wav');
+    const moveAudio = new Audio('./sounds/move.wav'); 
+    const shotAudio = new Audio('./sounds/shot.wav');
+    const machinegunAudio = new Audio('./sounds/machinegun.wav');
 
     // INPUT FUNCTIONS
     function aim() {
@@ -77,7 +78,7 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
             tankCenterPositionY + Math.sin(cannonAng) * shootDistance,
             cannonAng);
         framesBeforeCannonCanShootAgain = CANNON_RELOAD_TIME_IN_FRAMES;
-        shot.play();
+        shotAudio.play();
     }
 
     function fireMachineGun() {
@@ -91,7 +92,6 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
             7,
             40,
             1);
-
         framesBeforeMachineGunCanShootAgain = MACHINE_GUN_RELOAD_TIME_IN_FRAMES;
 
     }
@@ -155,13 +155,23 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     }
 
     // play move.wav when key down and stop when up. Up to 36secs. Will try to loop it
-    function moveSound() { 
+    function movePlaySound() { 
         if(keyHeld_Gas || keyHeld_Reverse || keyHeld_TurnLeft || keyHeld_TurnRight) {
-            move.play();
+            moveAudio.play();
         }
         else {
-            move.pause();
-            move.currentTime = 0;
+            moveAudio.pause();
+            moveAudio.currentTime = 0;
+        }
+    }
+
+    function machinegunPlaySound() {
+        if(isRightMouseButtonDown) {
+            machinegunAudio.play();
+        }
+        else {
+            machinegunAudio.pause();
+            machinegunAudio.currentTime = 0;
         }
     }
 
@@ -233,7 +243,8 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
         advanceOneFrame: function() {
             moveTank();
             aim();
-            moveSound();
+            movePlaySound();
+            machinegunPlaySound();
             if (isRightMouseButtonDown) {
                 fireMachineGun();
             }
