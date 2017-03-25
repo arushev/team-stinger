@@ -15,6 +15,8 @@ function startNewGame() {
 
     gameEngine.setupNewGame();
 
+    gameEngine.startOrResumeGame();
+
     gameInteval = setInterval(gameLoop, 1000 / gameFramesPerSecond);
 }
 

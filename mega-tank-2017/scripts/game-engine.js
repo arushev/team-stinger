@@ -1,6 +1,12 @@
 function getGameEngine(gameCanvas) {
     const fieldCanvas = gameCanvas;
 
+    let isGameRunning = false;
+    // Credits: band - Cupola, song - War, Album - Mistaken By Design
+    const gameSoundtrack = new Audio('./sounds/Cupola-War.mp3');
+    gameSoundtrack.loop = true;
+    gameSoundtrack.volume = 0.5;
+
     let fieldObjects = [];
     let playerTank;
 
@@ -58,6 +64,9 @@ function getGameEngine(gameCanvas) {
 
     return {
         setupNewGame: function() {
+            isGameRunning = false;
+            gameSoundtrack.currentTime = 0;
+
             fieldObjects = [];
 
             const fieldBordersWidth = Math.max(fieldCanvas.width, fieldCanvas.height);
@@ -78,7 +87,21 @@ function getGameEngine(gameCanvas) {
             fieldObjects.push(topFieldBorder, rightFieldBorder, bottomFieldBorder, leftFieldBorder, playerTank);
         },
 
+        startOrResumeGame: function() {
+            isGameRunning = true;
+            gameSoundtrack.play();
+        },
+
+        pauseGame: function() {
+            isGameRunning = false;
+            gameSoundtrack.pause();
+        },
+
         advanceOneFrame: function() {
+            if (!isGameRunning) {
+                return;
+            }
+
             fieldObjects.forEach(obj => obj.advanceOneFrame());
             processCollisions();
             fieldObjects = fieldObjects.filter(obj => !obj.canRemove())

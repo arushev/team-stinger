@@ -12,6 +12,7 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     var keyHeld_TurnRight = false;
 
     // mouse flags
+    let hasLeftMouseButtonBeenClicked = false;
     let isRightMouseButtonDown = false;
 
     let tankSpeed = 0;
@@ -50,7 +51,7 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     let mouseY = tankCenterPositionY;
 
     // SOUNDS
-    const moveAudio = new Audio('./sounds/move.wav'); 
+    const moveAudio = new Audio('./sounds/move.wav');
     const shotAudio = new Audio('./sounds/shot.wav');
     const machinegunAudio = new Audio('./sounds/machinegun.wav');
 
@@ -97,7 +98,7 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     }
 
     function handleMouseClick(evt) {
-        fireCannon();
+        hasLeftMouseButtonBeenClicked = true;
     }
 
     function handleRightMouseClick(evt) {
@@ -155,21 +156,19 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
     }
 
     // play move.wav when key down and stop when up. Up to 36secs. Will try to loop it
-    function movePlaySound() { 
-        if(keyHeld_Gas || keyHeld_Reverse || keyHeld_TurnLeft || keyHeld_TurnRight) {
+    function movePlaySound() {
+        if (keyHeld_Gas || keyHeld_Reverse || keyHeld_TurnLeft || keyHeld_TurnRight) {
             moveAudio.play();
-        }
-        else {
+        } else {
             moveAudio.pause();
             moveAudio.currentTime = 0;
         }
     }
 
     function machinegunPlaySound() {
-        if(isRightMouseButtonDown) {
+        if (isRightMouseButtonDown) {
             machinegunAudio.play();
-        }
-        else {
+        } else {
             machinegunAudio.pause();
             machinegunAudio.currentTime = 0;
         }
@@ -245,6 +244,10 @@ function getPlayerTank(initialPositionX, initialPositionY, initialHealth, launch
             aim();
             movePlaySound();
             machinegunPlaySound();
+            if (hasLeftMouseButtonBeenClicked) {
+                fireCannon();
+                hasLeftMouseButtonBeenClicked = false;
+            }
             if (isRightMouseButtonDown) {
                 fireMachineGun();
             }
