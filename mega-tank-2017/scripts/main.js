@@ -12,6 +12,9 @@ window.onload = function() {
 
 function startNewGame() {
     clearInterval(gameInteval);
+    // Remove start screen
+    var startScreen = document.getElementById('start-game');
+    startScreen.style.display = 'none';
 
     gameEngine.setupNewGame();
 

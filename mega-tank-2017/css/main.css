@@ -1,0 +1,38 @@
+@font-face {
+    font-family: Pixeled;
+    src: url(fonts/pixeled.ttf);
+}
+
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
+#start-game {
+    width: 800px;
+    height: 600px;
+    position: absolute;
+    top: 0;
+    left: 0;    
+    background-image: url("../img/startscreen.png");
+    font-family: Pixeled;
+    color: #fff;
+}
+
+#start-btn {
+    position: absolute;
+    top: 325px;
+    left: 300px;
+    font-family: Pixeled;
+    border: 0;
+    background: 0;
+    font-size: 30px;
+    color: #fff;
+    text-shadow: 2px 2px rgba(0, 0, 0, 0.5);
+    outline: none;
+}
+
+#start-btn:hover {
+    color: lawngreen;
+}
+
